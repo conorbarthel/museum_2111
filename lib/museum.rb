@@ -31,14 +31,27 @@ class Museum
   end
 
   def admit(patron)
-    if patron.spending_money > lowest_cost
+    if patron.spending_money >= lowest_cost
       @patrons << patron
     end
   end
 
   def patrons_by_exhibit_interest
-    @patrons.group_by do |patron|
-      patron.interests
+    @exhibits.reduce({}) do |acc, exhibit|
+      acc[exhibit] = patrons.select do |patron|
+        patron.interests.include?(exhibit.name)
+      end
+      acc
     end
+  end
+
+  def ticket_lottery_contestants(exhibit)
+    @patrons.select do |patron|
+      patron.spending_money < exhibit.cost
+    end
+  end
+
+  def draw_lottery_winner(exhibit)
+    ticket_lottery_contestants(exhibit).sample
   end
 end
